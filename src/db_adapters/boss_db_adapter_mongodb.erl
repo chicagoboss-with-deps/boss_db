@@ -474,7 +474,7 @@ type_to_collection_name(Type) when is_list(Type) ->
 
 % Convert a tuple return by the MongoDB driver to a Boss record
 mongo_tuple_to_record(Type, Row) ->
-    MongoDoc		= tuple_to_proplist(Row),
+    MongoDoc           = tuple_to_proplist(Row),
     AttributeTypes	= boss_record_lib:attribute_types(Type),
     AttributeNames	= boss_record_lib:attribute_names(Type),
     Args                = mongo_make_args(Type, MongoDoc, AttributeTypes,
@@ -490,7 +490,7 @@ mongo_make_args(Type, MongoDoc, AttributeTypes, AttributeNames) ->
 		  (AttrName) ->
 		      MongoValue = attr_value(AttrName, MongoDoc),
 		      ValueType = proplists:get_value(AttrName, AttributeTypes),
-		      unpack_value(AttrName, MongoValue, ValueType)
+              unpack_value(Type, AttrName, MongoValue, ValueType)
 	      end,
               AttributeNames).
 
@@ -545,15 +545,21 @@ pack_value([H|T]) when is_integer(H) -> list_to_binary([H|T]);
 pack_value({integers, List}) -> List;
 pack_value(V) -> V.
 
-unpack_value(_AttrName, [H|T], _ValueType) when is_integer(H) ->
+unpack_value(_, _AttrName, [H|T], _ValueType) when is_integer(H) ->
     {integers, [H|T]};
-unpack_value(_AttrName, {_, _, _} = Value, datetime) ->
+unpack_value(_, _AttrName, {_, _, _} = Value, datetime) ->
     calendar:now_to_datetime(Value);
-unpack_value(AttrName, Value, ValueType) ->
+unpack_value(RecordType, AttrName, Value, ValueType) ->
     case is_id_attr(AttrName) and (Value =/= "") of
         true ->
-            IdType = id_type_from_foreign_key(AttrName),
-            unpack_id(IdType, Value);
+            BelongsToTypes=RecordType:belongs_to_types(boss_record:new(RecordType,[])),
+            AttrNameAtom=list_to_atom(string:join(lists:reverse(tl(lists:reverse(string:tokens(atom_to_list(AttrName), "_")))),"_")), % drop _id from the end
+            case proplists:get_value(AttrNameAtom,BelongsToTypes) of
+                undefined ->
+                    unpack_id(atom_to_list(AttrNameAtom),Value);
+                RealAttrType ->
+                    unpack_id(atom_to_list(RealAttrType),Value)
+            end;
         false ->
             boss_record_lib:convert_value_to_type(Value, ValueType)
     end.

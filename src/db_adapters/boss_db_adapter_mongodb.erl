@@ -71,7 +71,7 @@ make_write_connection(Options, ReadConnection) ->
 	    ReadConnection;
 	WHost ->
 	    WPort       = proplists:get_value(db_write_host_port, Options, 27017),
-	    {ok, WConn} = mongo:connect({WHost, WPort}),
+	    {ok, WConn} = mongo:connect({WHost, WPort}, 300000),
 	    WConn
     end.
 
@@ -81,7 +81,7 @@ make_read_connection(Options, ReadMode) ->
 	undefined ->
 	    Host = proplists:get_value(db_host, Options, "localhost"),
 	    Port = proplists:get_value(db_port, Options, 27017),
-	    {ok, Conn} = mongo:connect({Host, Port}),
+	    {ok, Conn} = mongo:connect({Host, Port}, 300000),
 	    Conn;
 	ReplSet ->
 	    RSConn        = mongo:rs_connect(ReplSet),

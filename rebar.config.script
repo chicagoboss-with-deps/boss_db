@@ -5,7 +5,7 @@ case erlang:function_exported(rebar3, main, 1) of
         %% Rebuild deps, possibly including those that have been moved to
         %% profiles
         [{deps, [
-            {lager,         ".*",   {git, "https://github.com/chicagoboss-with-deps/lager.git",                {tag, "3.6.7"}}},
+            {lager,         ".*",   {git, "https://github.com/chicagoboss-with-deps/lager.git",                {tag, "3.6.7-2"}}},
             {erlando,       ".*",   {git, "https://github.com/chicagoboss-with-deps/erlando.git",               {tag, "rabbitmq_v2_8_8"}}},
             {aleppo,        ".*",   {git, "https://github.com/chicagoboss-with-deps/aleppo.git",                    {tag, "v0.9.4"}}},
             {medici,        ".*",   {git, "https://github.com/chicagoboss-with-deps/medici.git",                    {tag, "1.0.0"}}},

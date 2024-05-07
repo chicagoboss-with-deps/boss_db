@@ -519,7 +519,8 @@ attr_value(AttrName, MongoDoc) ->
 % Id conversions
 pack_id(BossId) ->
     try
-        [_, MongoId] = string:tokens(BossId, "-"),
+        io:format("========== BossID: ~p ==========~n", [BossId]),
+	[_, MongoId] = string:tokens(BossId, "-"),
         {hex2dec(MongoId)}
     catch
         Error:Reason ->
